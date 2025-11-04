@@ -67,15 +67,22 @@ class vehicle_model:
         return [left_front, right_front, right_rear, left_rear]
 
 
+# do some test
 if __name__ == "__main__":
     E0Y = vehicle_model(
-        name="E0Y", angle = 20.0 , kappa=0.05, velocity= 20.0, X=20.0, Y=20.0, acceleration=0.0
+        name="E0Y", angle = 20.0 , kappa=0.05, velocity= 30.0, X=20.0, Y=20.0, acceleration=0.0
     )
 
     fig, ax = plt.subplots()
+    # set title
+    ax.set_title("Vehicle Motion in Smooth frame")
     # set x-axis from -10 to 10
     ax.set_xlim(-10, 100)
     ax.set_ylim(-10, 100)
+    # set x label
+    ax.set_xlabel("X")
+    # set y label
+    ax.set_ylabel("X")
     ax.set_aspect("equal")
     plt.ion()  # 开启 交互模式
     for i in range(20):
