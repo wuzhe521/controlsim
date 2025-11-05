@@ -24,7 +24,8 @@ class MPC_Controller:
         # reference
         self.ref = []
         # initial status
-        self.init_status = vehicle_status(0.0, 0.0, 0.0, 0.0, 0.0, 0.0) 
+        self.init_status = vehicle_status(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
     def Update(self, init_status: vehicle_status, trajectory):
         self.init_status = init_status
         x0 = init_status.x
@@ -39,8 +40,8 @@ class MPC_Controller:
                 [1.0, 0.0, -v0 * sin(theta0) * ts, 0.0],
                 [0.0, 1.0, v0 * cos(theta0) * ts, 0.0],
                 [0.0, 0.0, 1.0, v0 * ts],
-            ],
-            [0.0, 0.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ]
         )
         Bd = sp.csc_matrix([0.0, 0.0, 0.0, 1.0])
         Wd = sp.csc_matrix(
@@ -61,23 +62,24 @@ class MPC_Controller:
         q = np.array()
         for i in range(horizon - 1):
             xr = self.ref[i]
-            q = np.hstack([q, -self.Q@xr])
-        q = np.hstack([q, -self.QN@self.ref[-1], np.zeros(horizon*nu)])
+            q = np.hstack([q, -self.Q @ xr])
+        q = np.hstack([q, -self.QN @ self.ref[-1], np.zeros(horizon * nu)])
         # - linear objective
-        
+
         # - linear dynamics
 
         # Create an OSQP object
         prob = osqp.OSQP()
 
-    def get_ref_points(self, ref_points : list):
+    def get_ref_points(self, ref_points: list):
         self.ref = ref_points
         return True
-    
+
+
 if __name__ == "__main__":
     Q = sp.eye(2)
     QN = sp.eye(2)
-    R =  sp.eye(2)
+    R = sp.eye(2)
     P = sp.block_diag(
         [
             sp.kron(sp.eye(horizon), Q),
@@ -85,16 +87,16 @@ if __name__ == "__main__":
             sp.kron(sp.eye(horizon), R),
         ]
     ).toarray()
-    
+
     print(P)
-    
+
     xr = np.array([1.0, 0.5])
-    
+
     q = np.hstack(
         [
             np.kron(np.ones(1), -Q @ xr),
         ]
     )
-    print(q)    
+    print(q)
     q = np.hstack([q, QN @ xr])
     print(q)
