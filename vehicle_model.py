@@ -5,6 +5,24 @@ import matplotlib.patches as patches
 from scipy import sparse
 
 
+class vehicle_status:
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        theta: float,
+        kappa: float,
+        velocity: float,
+        acceleration: float,
+    ):
+        self.x = x
+        self.y = y
+        self.theta = theta
+        self.kappa = kappa
+        self.velocity = velocity
+        self.acceleration = acceleration
+
+
 class vehicle_model:
     def __init__(self, name, angle, kappa, velocity, acceleration, X, Y):
         self.name = name
@@ -66,23 +84,27 @@ class vehicle_model:
         right_rear = (right_rear_x, right_rear_y)
         return [left_front, right_front, right_rear, left_rear]
 
+    def get_vehicle_status(self):
+        return vehicle_status(
+            self.X, self.Y, self.angle, self.kappa, self.velocity, self.acceleration
+        )
 
-# do some test
+
 if __name__ == "__main__":
     E0Y = vehicle_model(
-        name="E0Y", angle = 20.0 , kappa=0.05, velocity= 30.0, X=20.0, Y=20.0, acceleration=0.0
+        name="E0Y",
+        angle=20.0,
+        kappa=0.05,
+        velocity=20.0,
+        X=20.0,
+        Y=20.0,
+        acceleration=0.0,
     )
 
     fig, ax = plt.subplots()
-    # set title
-    ax.set_title("Vehicle Motion in Smooth frame")
     # set x-axis from -10 to 10
     ax.set_xlim(-10, 100)
     ax.set_ylim(-10, 100)
-    # set x label
-    ax.set_xlabel("X")
-    # set y label
-    ax.set_ylabel("X")
     ax.set_aspect("equal")
     plt.ion()  # 开启 交互模式
     for i in range(20):
@@ -100,7 +122,6 @@ if __name__ == "__main__":
     E0Y.Y = 20.0
     for i in range(20):
         points = E0Y.position()
-        print(points)
         rect = patches.Polygon(
             points, linewidth=2, edgecolor="red", facecolor="red", alpha=0.7
         )
