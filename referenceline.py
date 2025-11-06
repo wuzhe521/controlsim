@@ -48,9 +48,7 @@ class reference_line:
     def get_ref_points(self, pre_view_d: float):
         points = []
         x_scat = np.linspace(0, pre_view_d, 200)
-        print(x_scat)
         for i in range(len(x_scat)):
-            print("i = ", i, "x = ", x_scat[i])
             if i == 0:
                 x, y, dy, ddy, kappa, dkappa, angle = self.get_point(x_scat[i])
                 points.append(Point(x, y, dy, ddy, kappa, dkappa, 0.0, angle))
