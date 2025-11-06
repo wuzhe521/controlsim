@@ -28,6 +28,7 @@ if __name__ == "__main__":
     
     #########figure setup#########
     fig, ax = plt.subplots()
+    fig.tight_layout() 
     ax.set_xlim(-10, 200)
     ax.set_ylim(-10, 100)
     plt.ion()  # 开启 交互模式
