@@ -26,7 +26,7 @@ class vehicle_status:
 class vehicle_model:
     def __init__(self, name, angle, kappa, velocity, acceleration, X, Y):
         self.name = name
-        self.angle = np.deg2rad(angle)
+        self.angle = angle
         self.kappa = kappa
         self.velocity = velocity
         self.acceleration = acceleration

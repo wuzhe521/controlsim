@@ -20,11 +20,11 @@ class MPC_Controller:
         self.ts = ts
         self.horizon = horizon
         # weight matrix
-        self.Q = sp.csc_array([[1, 0.0, 0.0, 0.0],
-                               [0.0, 1, 0.0, 0.0], 
-                               [0.0, 0.0, 100.0, 0.0], 
-                               [0.0, 0.0, 0.0, 10000.0]])
-        self.R = 10
+        self.Q = sp.csc_array([[1., 0.0, 0.0, 0.0],
+                               [0.0, 1., 0.0, 0.0], 
+                               [0.0, 0.0, 10.0, 0.0], 
+                               [0.0, 0.0, 0.0, 3000.0]])
+        self.R = 1.0
         self.QN = self.Q 
         # reference
         self.ref = []

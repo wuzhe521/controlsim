@@ -2,6 +2,8 @@ import numpy as np
 from numpy.linalg import solve
 import matplotlib.pyplot as plt
 from math import *
+from utilities import *
+from vehicle_model import vehicle_status
 
 Safe_distance = 0.5
 
@@ -33,16 +35,16 @@ class reference_line:
         self.a0 = a0
         self.a1 = a1
         self.a2 = a2
-        self.points = []
+        self.points = self.get_ref_points(500)
 
     def get_point(self, dist: float):
-        '''
+        """
         根据给定距离[X - direction]，返回参考线点。
             Args:
                 dist (float): X - direction distance.
             Returns:
                 x, y, dy, ddy, kappa, dkappa, angle
-        '''
+        """
         x = dist
         y = self.a0 + self.a1 * dist + self.a2 * dist**2
         dy = self.a1 + 2 * self.a2 * dist
@@ -63,7 +65,7 @@ class reference_line:
                 points (list) : 离散后的参考线点集合。
         """
         points = []
-        x_scat = np.linspace(0, pre_view_d, 200)
+        x_scat = np.linspace(0, pre_view_d, 500)
         for i in range(len(x_scat)):
             if i == 0:
                 x, y, dy, ddy, kappa, dkappa, angle = self.get_point(x_scat[i])
@@ -74,18 +76,17 @@ class reference_line:
                 dy = y - points[-1].y
                 s = points[-1].s + np.sqrt(dx**2 + dy**2)
                 points.append(Point(x, y, dy, ddy, kappa, dkappa, s, angle))
-        self.points = points
         return points
 
-    def get_nearest_point(self, x : float, y :float):
-        '''
+    def get_nearest_point(self, x: float, y: float):
+        """
         calculate the nearest point
             Args:
                 x (float): x
                 y (float): y
             Returns:
                 nearest_point (Point)
-        '''
+        """
         min_dist = np.inf
         nearest_point = Point(0, 0, 0, 0, 0, 0, 0, 0)
         for point in self.points:
@@ -128,6 +129,27 @@ class reference_line:
                     self.points[i].angle - self.points[i - 1].angle
                 )
                 return Point(x, y, dy, ddy, kappa, dkappa, s, angle)
+
+    def get_inline_pointY_frm_x(self, x: float):
+        return self.a0 + self.a1 * x + self.a2 * x**2
+
+    def get_vehicle_status_from_settings(
+        self, pos_left: bool, yaw_left: bool, kappa_left: bool
+    ) -> vehicle_status:
+        x = 0.0  # vehicle start at 0 as default
+        x, y, dy, ddy, kappa, dkappa, angle = self.get_point(x)
+        pos_coeff = 1.0 if pos_left else -1.0
+        yaw_coeff = 1.0 if yaw_left else -1.0
+        kappa_coeff = 1.0 if kappa_left else -1.0
+        return vehicle_status(
+            x - MAX_Dist_Diff * pos_coeff * cos(angle),
+            y - MAX_Dist_Diff * pos_coeff * sin(angle),
+            angle + MAX_Heading_Diff * yaw_coeff,
+            kappa + MAX_Heading_Diff * kappa_coeff,
+            max_velocity_vs_kappa(kappa),
+            0.0
+        )
+
 
 # do some test
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from referenceline import reference_line
 from controller import MPC_Controller, ts, horizon
+from object import object, target_sensor
 
 
 def Coordinate_transform(x, y, x0, y0, angle):
@@ -19,10 +20,14 @@ if __name__ == "__main__":
     preview_t = 10.0  # Planner time horizon
     control_ts = 0.2  # s
     horizon = 10  # horizon length
-
+    
     #########objects creation#####
-    E0Y = vehicle_model("E0Y", 0.0, 0.005, 10.0, 0.5, 50, 20)  # create a vehicle model
-    ref_lin = reference_line(-5.0, 0.005, 0.005)  # create a reference line
+    ref_lin = reference_line(10.0, 0.005, 0.002)  # create a reference line
+    #########initialize##########
+    
+    E0Y = vehicle_model("E0Y", 0.01, 0.002, 20.0, 0.5, 0, -5)  # create a vehicle model
+    sensor = target_sensor(E0Y)
+    sensor.register(object("car", 1.9, 5.0, 0.0, 20.0, ref_lin))
     trajectory = ref_lin.get_ref_points(200)  # get reference line
     controller = MPC_Controller(ts, horizon)  # create a controller
 
@@ -50,7 +55,7 @@ if __name__ == "__main__":
     #############################
 
     ####### simulation loop######
-    for i in range(50):
+    for i in range(40):
         # set x-axis from -10 to 10
         ax.set_xlim(-10, 200)
         ax.set_ylim(-10, 100)
@@ -66,9 +71,17 @@ if __name__ == "__main__":
             facecolor="lightblue",
             alpha=0.7,
         )
-
+        loc_target = sensor.get_object_by_name("car").position()
+        rect_target = patches.Polygon(
+            loc_target,
+            linewidth=2,
+            edgecolor="red",
+            facecolor="lightpink",
+            alpha=0.7,
+        )
         ax.add_patch(rect)
-
+        # ax.add_patch(rect_target)
+        sensor.plot_targets(ax=ax)
         #### find nearest point ######
         nearest_point = ref_lin.get_nearest_point(E0Y.X, E0Y.Y)  # get nearest point
         plt.scatter(nearest_point.x, nearest_point.y, s=5, c="g")  # draw nearest point
@@ -90,6 +103,7 @@ if __name__ == "__main__":
 
         ##### kinematic model update #####
         E0Y.kinematic_Update(ctrl, ts)  # update kinematic model
+        sensor.Update(ts)
         # E0Y.kinematic_Update(0, ts)
 
         #### pause for visualization #####
