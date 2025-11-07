@@ -22,9 +22,9 @@ class MPC_Controller:
         # weight matrix
         self.Q = sp.csc_array([[1., 0.0, 0.0, 0.0],
                                [0.0, 1., 0.0, 0.0], 
-                               [0.0, 0.0, 10.0, 0.0], 
-                               [0.0, 0.0, 0.0, 3000.0]])
-        self.R = 1.0
+                               [0.0, 0.0, 100.0, 0.0], 
+                               [0.0, 0.0, 0.0, 2000.0]])
+        self.R = 10.0
         self.QN = self.Q 
         # reference
         self.ref = []

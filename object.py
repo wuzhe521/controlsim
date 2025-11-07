@@ -81,7 +81,6 @@ class target_sensor:
             )
             ax.add_patch(rect_target)
             
-            
 if __name__ == "__main__":
 
     reference = reference_line(a0=10, a1=0.05, a2=0.002)

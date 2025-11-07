@@ -25,9 +25,9 @@ if __name__ == "__main__":
     ref_lin = reference_line(10.0, 0.005, 0.002)  # create a reference line
     #########initialize##########
     
-    E0Y = vehicle_model("E0Y", 0.01, 0.002, 20.0, 0.5, 0, -5)  # create a vehicle model
+    E0Y = vehicle_model("E0Y", 0.01, 0.002, 30.0, 0.5, 0, 10)  # create a vehicle model
     sensor = target_sensor(E0Y)
-    sensor.register(object("car", 1.9, 5.0, 0.0, 20.0, ref_lin))
+    sensor.register(object("car", 1.9, 5.0, 20.0, 20.0, ref_lin))
     trajectory = ref_lin.get_ref_points(200)  # get reference line
     controller = MPC_Controller(ts, horizon)  # create a controller
 
@@ -100,9 +100,12 @@ if __name__ == "__main__":
         control_ref_x = [pt.x for pt in control_ref]
         control_ref_y = [pt.y for pt in control_ref]
         plt.scatter(control_ref_x, control_ref_y, s=10, c="b")
-
+        #### calc dis #####
+        v_Gap = sensor.get_object_by_name("car").velocity - E0Y.velocity
+        a_cmd = v_Gap * 1
         ##### kinematic model update #####
         E0Y.kinematic_Update(ctrl, ts)  # update kinematic model
+        E0Y.acceleration = a_cmd
         sensor.Update(ts)
         # E0Y.kinematic_Update(0, ts)
 
