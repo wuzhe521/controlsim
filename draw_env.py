@@ -7,13 +7,29 @@ from controller import LongPid_Controller, LatKmMpc_Controller, ts, horizon
 from object import object, target_sensor
 from utilities import *
 
-
-def Coordinate_transform(x, y, x0, y0, angle):
-    rotate_x = (x) * np.cos(angle) + (y) * np.sin(angle)
-    rotate_y = -(x) * np.sin(angle) + (y) * np.cos(angle)
-    tran_x = rotate_x + x0
-    tran_y = rotate_y + y0
-    return tran_x, tran_y
+############################################################################
+#                       _oo0oo_
+#                      o8888888o
+#                      88" . "88
+#                      (| -_- |)
+#                      0\  =  /0
+#                    ___/`---'\___
+#                  .' \\|     |# '.
+#                 / \\|||  :  |||# \
+#                / _||||| -:- |||||- \
+#               |   | \\\  -  #/ |   |
+#               | \_|  ''\---/''  |_/ |
+#               \  .-\__  '-'  ___/-. /
+#             ___'. .'  /--.--\  `. .'___
+#          ."" '<  `.___\_<|>_/___.' >' "".
+#         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+#         \  \ `_.   \_ __\ /__ _/   .-` /  /
+#     =====`-.____`.___ \_____/___.-`___.-'=====
+#                       `=---='
+#     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#               佛祖保佑         永无BUG
+###########################################################################
 
 
 if __name__ == "__main__":
