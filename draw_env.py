@@ -3,8 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from referenceline import reference_line
-from controller import MPC_Controller, ts, horizon
+from controller import LongPid_Controller, LatKmMpc_Controller, ts, horizon
 from object import object, target_sensor
+from utilities import *
 
 
 def Coordinate_transform(x, y, x0, y0, angle):
@@ -20,34 +21,26 @@ if __name__ == "__main__":
     preview_t = 10.0  # Planner time horizon
     control_ts = 0.2  # s
     horizon = 10  # horizon length
-    
+
     #########objects creation#####
     ref_lin = reference_line(10.0, 0.005, 0.002)  # create a reference line
     #########initialize##########
-    
-    E0Y = vehicle_model("E0Y", 0.01, 0.002, 30.0, 0.5, 0, 10)  # create a vehicle model
+
+    E0Y = vehicle_model("E0Y", 0.01, 0.002, 15.0, 0.5, 0, 10)  # create a vehicle model
     sensor = target_sensor(E0Y)
     sensor.register(object("car", 1.9, 5.0, 20.0, 20.0, ref_lin))
     trajectory = ref_lin.get_ref_points(200)  # get reference line
-    controller = MPC_Controller(ts, horizon)  # create a controller
-
+    lat_controller = LatKmMpc_Controller(ts, horizon)  # create a lateral controller
+    lon_controller = LongPid_Controller(1.5, 30.0)
     #########figure setup#########
     fig, ax = plt.subplots()
     fig.tight_layout()
+    ax.set_facecolor("lightgreen")
     ax.set_xlim(-10, 200)
     ax.set_ylim(-10, 100)
     plt.ion()  # 开启 交互模式
-    ax.text(
-        0.5,
-        0.5,
-        "Active Safty - LSS \n Sim Start",
-        transform=ax.transAxes,
-        horizontalalignment="center",
-        verticalalignment="center",
-        size=18,
-        fontdict=None,
-    )
-    plt.pause(1.0)
+    show_start_message(ax=ax)
+    plt.pause(2.0)
     ax.cla()
     #########trajectory##########
     traj_x = [p.x for p in trajectory]
@@ -61,27 +54,11 @@ if __name__ == "__main__":
         ax.set_ylim(-10, 100)
         ax.set_aspect("equal")
         plt.scatter(traj_x, traj_y, s=1, c="r")  # draw reference line in global frame
-
+        show_time(ax= ax, loc_x= 0.05, loc_y= 0.95, time= i * ts)
         ######## plot vehicle #####
-        loc = E0Y.position()
-        rect = patches.Polygon(
-            loc,
-            linewidth=2,
-            edgecolor="blue",
-            facecolor="lightblue",
-            alpha=0.7,
-        )
-        loc_target = sensor.get_object_by_name("car").position()
-        rect_target = patches.Polygon(
-            loc_target,
-            linewidth=2,
-            edgecolor="red",
-            facecolor="lightpink",
-            alpha=0.7,
-        )
-        ax.add_patch(rect)
-        # ax.add_patch(rect_target)
+        E0Y.plot_vehicle(ax=ax)
         sensor.plot_targets(ax=ax)
+
         #### find nearest point ######
         nearest_point = ref_lin.get_nearest_point(E0Y.X, E0Y.Y)  # get nearest point
         plt.scatter(nearest_point.x, nearest_point.y, s=5, c="g")  # draw nearest point
@@ -93,21 +70,22 @@ if __name__ == "__main__":
             control_ref.append(ref_lin.get_point_from_S(nearest_point, ds[i]))
 
         #### update controller and get control command #####
-        ctrl = controller.Update(E0Y.get_vehicle_status(), control_ref)
-        print("Control : ", ctrl)  # print control command
+        kappa_rate = lat_controller.Update(E0Y.get_vehicle_status(), control_ref)
+        acceleration = lon_controller.Update(E0Y, sensor.get_object_by_name("car"))
+        print(
+            "kappa_rate : ", kappa_rate, " acceleration : ", acceleration
+        )  # print control command
 
         #### plot control reference point #####
         control_ref_x = [pt.x for pt in control_ref]
         control_ref_y = [pt.y for pt in control_ref]
         plt.scatter(control_ref_x, control_ref_y, s=10, c="b")
-        #### calc dis #####
-        v_Gap = sensor.get_object_by_name("car").velocity - E0Y.velocity
-        a_cmd = v_Gap * 1
+
         ##### kinematic model update #####
-        E0Y.kinematic_Update(ctrl, ts)  # update kinematic model
-        E0Y.acceleration = a_cmd
+        E0Y.kinematic_Update(
+            kappa_rate=kappa_rate, acceleration=acceleration, dt=ts
+        )  # update kinematic model
         sensor.Update(ts)
-        # E0Y.kinematic_Update(0, ts)
 
         #### pause for visualization #####
         plt.pause(0.1)
@@ -116,14 +94,5 @@ if __name__ == "__main__":
     plt.ioff()
     ax.set_xlim(-10, 200)
     ax.set_ylim(-10, 100)
-    ax.text(
-        0.5,
-        0.5,
-        "Active Safty -  LSS \n Sim End \n Thank you for using Ctrl_Sim",
-        transform=ax.transAxes,
-        horizontalalignment="center",
-        verticalalignment="center",
-        size=18,
-        fontdict=None,
-    )
+    show_end_message(ax)
     plt.show()

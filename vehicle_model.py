@@ -32,11 +32,13 @@ class vehicle_model:
         self.acceleration = acceleration
         self.X = X
         self.Y = Y
-
+        self.s = 0.0
         self.Width = 1.9
         self.Length = 5.0
 
-    def kinematic_Update(self, kappa_rate, dt):
+    def kinematic_Update(
+        self, kappa_rate: float = 0.0, acceleration: float = 0.0, dt: float = 0.2
+    ):
         """
         generate kinematic motion using kinematic model
              input:
@@ -57,7 +59,8 @@ class vehicle_model:
             + self.velocity * np.cos(self.angle) * dt
         )
         self.angle = self.angle + delta_theta
-        self.velocity = self.velocity + self.acceleration * dt
+        self.velocity = self.velocity + acceleration * dt
+        self.s = self.s + self.velocity * dt + 0.5 * acceleration * dt * dt
 
     def position(self):
         """
@@ -104,14 +107,23 @@ class vehicle_model:
         return vehicle_status(
             self.X, self.Y, self.angle, self.kappa, self.velocity, self.acceleration
         )
-
+    def plot_vehicle(self, ax):
+        loc = self.position()
+        rect = patches.Polygon(
+            loc,
+            linewidth=2,
+            edgecolor="blue",
+            facecolor="lightblue",
+            alpha=0.7,
+        )
+        ax.add_patch(rect)
 
 if __name__ == "__main__":
     E0Y = vehicle_model(
         name="E0Y",
         angle=20.0,
         kappa=0.05,
-        velocity=20.0,
+        velocity=0.0,
         X=20.0,
         Y=20.0,
         acceleration=0.0,
@@ -123,20 +135,20 @@ if __name__ == "__main__":
     ax.set_ylim(-10, 100)
     ax.set_aspect("equal")
     plt.ion()  # 开启 交互模式
-    for i in range(20):
+    for i in range(10):
         points = E0Y.position()
         print(points)
         rect = patches.Polygon(
             points, linewidth=2, edgecolor="blue", facecolor="lightblue", alpha=0.7
         )
         ax.add_patch(rect)
-        E0Y.kinematic_Update(0, 0.025)
+        E0Y.kinematic_Update(0, 10, 0.2)
         plt.pause(0.1)
     E0Y.kappa = 0.0
     E0Y.angle = 0.0
     E0Y.X = 20.0
     E0Y.Y = 20.0
-    for i in range(20):
+    for i in range(10):
         points = E0Y.position()
         rect = patches.Polygon(
             points, linewidth=2, edgecolor="red", facecolor="red", alpha=0.7

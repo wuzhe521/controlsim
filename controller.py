@@ -5,7 +5,7 @@ from referenceline import reference_line
 from math import *
 import osqp
 import scipy.sparse as sp
-
+from object import object
 
 ts = 0.2  # sample time
 horizon = 10  # horizon length
@@ -15,7 +15,7 @@ max_kappa_rate = 0.05
 state_min = np.array([-np.inf, -np.inf, -np.inf, -np.inf])
 state_max = np.array([np.inf, np.inf, np.inf, np.inf])
 
-class MPC_Controller:
+class LatKmMpc_Controller:
     def __init__(self, ts: float, horizon: int):
         self.ts = ts
         self.horizon = horizon
@@ -144,14 +144,43 @@ class MPC_Controller:
         self.ref = ref_points
         return True
 
-
+class LongPid_Controller:
+    def __init__(self, headway: float, set_speed: int):
+        
+        ### follow PID ###
+        self.P_pos = 0.5
+        self.P_vel = 1.0
+        ### speed PID ###
+        self.P_spd = 1.0
+        ### headway ###
+        self.headway = headway # second
+        ### set speed ###
+        self.set_speed = set_speed
+        ### limit ###
+        self.acc_max = 2.0
+        self.acc_min = -2.0
+    def Update(self, ego_vehicle: vehicle_model, target_vehicle: object):
+        target_s_gap = target_vehicle.velocity * self.headway
+        current_s_gap = target_vehicle.s - ego_vehicle.s
+        s_gap = current_s_gap - target_s_gap; 
+        v_gap = target_vehicle.velocity - ego_vehicle.velocity
+        ### set speed control ###
+        set_speed_a = self.P_spd * (self.set_speed - ego_vehicle.velocity)
+        set_speed_a = max(self.acc_min, min(self.acc_max, set_speed_a))
+        ### follow target vehicle ###
+        outer_pid = self.P_pos * s_gap
+        inner_pid = self.P_vel * ( v_gap + outer_pid) 
+        lead_target_a = max(min(inner_pid, self.acc_max), self.acc_min)
+        return min(set_speed_a, lead_target_a)
+    
+    
 if __name__ == "__main__":
     planner_t = 10.0
     E0Y = vehicle_model("E0Y", 0.0, 0.005, 10.0, 0.5, -5.0, -5.0)
     ref_lin = reference_line(-5.0, 0.005, 0.0005)
     trajectory = ref_lin.get_ref_points(planner_t * E0Y.velocity)
 
-    controller = MPC_Controller(ts, horizon)
+    controller = LatKmMpc_Controller(ts, horizon)
     nearest_point = ref_lin.get_nearest_point(E0Y.X, E0Y.Y)
 
     ts = controller.ts

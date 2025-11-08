@@ -26,7 +26,7 @@ class object:
 
     def Update(self, ts: float):
         ds = self.velocity * ts
-        print(self.loc.s)
+        self.s += ds
         self.loc = self.ref_l.get_point_from_S(self.loc, ds)
 
     def position(self):
