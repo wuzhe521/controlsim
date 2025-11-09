@@ -42,7 +42,7 @@ if __name__ == "__main__":
     ref_lin = reference_line(10.0, 0.005, 0.002)  # create a reference line
     #########initialize##########
 
-    E0Y = vehicle_model("E0Y", 0.01, 0.002, 15.0, 0.5, 0, 10)  # create a vehicle model
+    E0Y = vehicle_model("E0Y", 0.01, 0.002, 15.0, 0.5, 0, 15)  # create a vehicle model
     sensor = target_sensor(E0Y)
     sensor.register(object("car", 1.9, 5.0, 20.0, 20.0, ref_lin))
     trajectory = ref_lin.get_ref_points(200)  # get reference line
@@ -50,6 +50,7 @@ if __name__ == "__main__":
     lon_controller = LongPid_Controller(1.5, 30.0)
     #########figure setup#########
     fig, ax = plt.subplots()
+    fig.canvas.manager.window.showMaximized()
     fig.tight_layout()
     ax.set_facecolor("lightgreen")
     ax.set_xlim(-10, 200)
@@ -64,11 +65,11 @@ if __name__ == "__main__":
     #############################
 
     ####### simulation loop######
-    for i in range(40):
+    for i in range(50):
         # set x-axis from -10 to 10
         ax.set_xlim(-10, 200)
         ax.set_ylim(-10, 100)
-        ax.set_aspect("equal")
+        #ax.set_aspect("equal")
         plt.scatter(traj_x, traj_y, s=1, c="r")  # draw reference line in global frame
         show_time(ax= ax, loc_x= 0.05, loc_y= 0.95, time= i * ts)
         ######## plot vehicle #####
