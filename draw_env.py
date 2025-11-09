@@ -1,7 +1,5 @@
 from vehicle_model import vehicle_model
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from referenceline import reference_line
 from controller import LongPid_Controller, LatKmMpc_Controller, ts, horizon
 from object import object, target_sensor
@@ -42,8 +40,8 @@ if __name__ == "__main__":
     ref_lin = reference_line(10.0, 0.005, 0.002)  # create a reference line
     #########initialize##########
 
-    E0Y = vehicle_model("E0Y", 0.01, 0.002, 15.0, 0.5, 0, 15)  # create a vehicle model
-    sensor = target_sensor(E0Y)
+    ego = vehicle_model("E0Y", 0.01, 0.002, 15.0, 0.5, 0, 15)  # create a vehicle model
+    sensor = target_sensor(ego)
     sensor.register(object("car", 1.9, 5.0, 20.0, 20.0, ref_lin))
     trajectory = ref_lin.get_ref_points(200)  # get reference line
     lat_controller = LatKmMpc_Controller(ts, horizon)  # create a lateral controller
@@ -73,22 +71,22 @@ if __name__ == "__main__":
         plt.scatter(traj_x, traj_y, s=1, c="r")  # draw reference line in global frame
         show_time(ax= ax, loc_x= 0.05, loc_y= 0.95, time= i * ts)
         ######## plot vehicle #####
-        E0Y.plot_vehicle(ax=ax)
+        ego.plot_vehicle(ax=ax)
         sensor.plot_targets(ax=ax)
 
         #### find nearest point ######
-        nearest_point = ref_lin.get_nearest_point(E0Y.X, E0Y.Y)  # get nearest point
+        nearest_point = ref_lin.get_nearest_point(ego.X, ego.Y)  # get nearest point
         plt.scatter(nearest_point.x, nearest_point.y, s=5, c="g")  # draw nearest point
 
         #### get control reference point #####
-        ds = [E0Y.velocity * ts * i for i in range(horizon)]
+        ds = [ego.velocity * ts * i for i in range(horizon)]
         control_ref = []
         for i in range(horizon):
             control_ref.append(ref_lin.get_point_from_S(nearest_point, ds[i]))
 
         #### update controller and get control command #####
-        kappa_rate = lat_controller.Update(E0Y.get_vehicle_status(), control_ref)
-        acceleration = lon_controller.Update(E0Y, sensor.get_object_by_name("car"))
+        kappa_rate = lat_controller.Update(ego.get_vehicle_status(), control_ref)
+        acceleration = lon_controller.Update(ego, sensor.get_object_by_name("car"))
         print(
             "kappa_rate : ", kappa_rate, " acceleration : ", acceleration
         )  # print control command
@@ -99,9 +97,10 @@ if __name__ == "__main__":
         plt.scatter(control_ref_x, control_ref_y, s=10, c="b")
 
         ##### kinematic model update #####
-        E0Y.kinematic_Update(
+        ego.kinematic_Update(
             kappa_rate=kappa_rate, acceleration=acceleration, dt=ts
         )  # update kinematic model
+        #### sensor update #####
         sensor.Update(ts)
 
         #### pause for visualization #####
