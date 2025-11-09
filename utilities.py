@@ -92,6 +92,13 @@ def show_time(ax, loc_x, loc_y, time):
         s="t = " + str(time).split(".")[0] + "." + str(time).split(".")[1][:1],
         size = 10
     )
+def show_info(ax, loc_x, loc_y, info):
+    ax.text(
+        loc_x,
+        loc_y,
+        s=info,
+        size = 10
+    )
 
 
 # do some test

@@ -12,6 +12,9 @@ horizon = 10  # horizon length
 
 max_jerk = 0.5
 max_kappa_rate = 0.05
+
+max_acc = 2.0
+
 state_min = np.array([-np.inf, -np.inf, -np.inf, -np.inf])
 state_max = np.array([np.inf, np.inf, np.inf, np.inf])
 

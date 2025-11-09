@@ -40,9 +40,9 @@ if __name__ == "__main__":
     ref_lin = reference_line(10.0, 0.005, 0.002)  # create a reference line
     #########initialize##########
 
-    ego = vehicle_model("E0Y", 0.01, 0.002, 15.0, 0.5, 0, 15)  # create a vehicle model
+    ego = vehicle_model("E0Y", 0.01, 0.002, 15.0, -4, 0, 20)  # create a vehicle model
     sensor = target_sensor(ego)
-    sensor.register(object("car", 1.9, 5.0, 20.0, 20.0, ref_lin))
+    sensor.register(object("car", 1.9, 5.0, 20.0, 15.0, ref_lin))
     trajectory = ref_lin.get_ref_points(200)  # get reference line
     lat_controller = LatKmMpc_Controller(ts, horizon)  # create a lateral controller
     lon_controller = LongPid_Controller(1.5, 30.0)
@@ -67,9 +67,12 @@ if __name__ == "__main__":
         # set x-axis from -10 to 10
         ax.set_xlim(-10, 200)
         ax.set_ylim(-10, 100)
-        #ax.set_aspect("equal")
+
         plt.scatter(traj_x, traj_y, s=1, c="r")  # draw reference line in global frame
-        show_time(ax= ax, loc_x= 0.05, loc_y= 0.95, time= i * ts)
+        show_time(ax= ax, loc_x= 0.05, loc_y= 0.95, time= i * ts) # show time
+        show_info(ax= ax, loc_x= 0.05, loc_y= 80, info= "velocity : " + str(ego.velocity) + " m/s \n" +
+                  "acceleration : " + str(ego.acceleration) + " m/s^2 \n" + 
+                  "kappa : " + str(ego.kappa) + " 1/m \n")
         ######## plot vehicle #####
         ego.plot_vehicle(ax=ax)
         sensor.plot_targets(ax=ax)

@@ -59,6 +59,7 @@ class vehicle_model:
             + self.velocity * np.cos(self.angle) * dt
         )
         self.angle = self.angle + delta_theta
+        self.acceleration = acceleration
         self.velocity = self.velocity + acceleration * dt
         self.s = self.s + self.velocity * dt + 0.5 * acceleration * dt * dt
 
