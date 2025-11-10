@@ -75,7 +75,7 @@ def show_end_message(ax):
         "Spark Group\n Sim End",
         transform=ax.transAxes,
         horizontalalignment="center",
-        verticalalignment="bottom",
+        verticalalignment="center",
         color="white",
         size=36,
         fontdict=None,
