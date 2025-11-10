@@ -4,6 +4,7 @@ import matplotlib.patches as patches
 from referenceline import reference_line, Point
 from vehicle_model import vehicle_model
 from math import *
+from typing import List
 
 class object:
     def __init__(
@@ -53,11 +54,16 @@ class object:
         right_rear_y = Y - self.Width / 2 * np.cos(angle)
         right_rear = (right_rear_x, right_rear_y)
         return [left_front, right_front, right_rear, left_rear]
-
+    def show_object(self, ax):
+        loc = self.position()
+        rect = patches.Polygon(
+            loc, linewidth=2, edgecolor="red", facecolor="red", alpha=0.7
+        )
+        ax.add_patch(rect)
 
 class target_sensor:
     def __init__(self, ego_vehicle: vehicle_model):
-        self.Object_list = []
+        self.Object_list : List[object] = []
         self.ego_ = ego_vehicle
     def register(self, target : object):
         self.Object_list.append(target)
@@ -73,15 +79,7 @@ class target_sensor:
         return None
     def plot_targets(self, ax):
         for i in range(len(self.Object_list)):
-            loc_target = self.Object_list[i].position()
-            rect_target = patches.Polygon(
-                loc_target,
-                linewidth=2,
-                edgecolor="red",
-                facecolor="lightpink",
-                alpha=0.7,
-            )
-            ax.add_patch(rect_target)
+            loc_target = self.Object_list[i].show_object(ax)
             
 if __name__ == "__main__":
 
