@@ -13,6 +13,7 @@ class sim_data_recorder:
     def __init__(self, name: str = "sim_data"):
         self.name = name
         self.proto = sim_debug_pb2
+        self.dest_folder = os.path.join(os.getcwd(), "sim_data")
         # self.fig, self.ax = plt.subplots()
 
     def set_file_prefix(self, prefix: str):
@@ -26,7 +27,8 @@ class sim_data_recorder:
         return f"{prefix}_{dt_str}.pkl"
 
     def save_data(self, data):
-        file_name = self.get_file_name()
+        os.makedirs(self.dest_folder, exist_ok=True)
+        file_name = os.path.join(self.dest_folder, self.get_file_name())
         with open(file_name, "wb") as f:
             pickle.dump(data, f)
 
@@ -96,7 +98,7 @@ class sim_data_player:
         axes[4].plot(time, acceleration_cmd, c="b", label="acceleration")
         axes[4].set_ylabel("a")
         axes[4].grid(True)
-    
+        plt.tight_layout()
         plt.show()
 
 

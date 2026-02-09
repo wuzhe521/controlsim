@@ -23,8 +23,8 @@ recorder = sim_data_recorder("test")
 player = sim_data_player()
 if __name__ == "__main__":
     #########objects creation##### 
-    ref_lin = straight_road  # create a reference line
-    ego = vehicle_model("ego", 0.01, 0.002, 15.0, -4, 0, 40)  # create a vehicle model
+    ref_lin = left_curve_road  # create a reference line
+    ego = vehicle_model("ego", 0.01, 0.002, 15.0, 0, 0, 40)  # create a vehicle model
     sensor = detect_sensor(ego)  # equipment sensor in ego vehicle
     sensor.register_object(object("car", 1.9, 5.0, 20.0, 100.0 / 3.6, ref_lin, 2.0))
     sensor.register_ref_line(ref_lin)

@@ -2,7 +2,7 @@
 vehicle control simulation
 
 lateral control : kinematic mpc  
-longitudinal contril : cascade pid  
+longitudinal control : cascade pid  
 
 features like : planner, sensor are still developing.    
 

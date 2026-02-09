@@ -9,7 +9,7 @@ from object import object
 from proto import sim_debug_pb2
 
 ts = 0.2  # sample time
-horizon = 10  # horizon length
+horizon = 15  # horizon length
 
 max_jerk = 0.5
 max_kappa_rate = 0.05
@@ -197,6 +197,34 @@ class LongPid_Controller:
 
     def debug_proto(self, debug_proto: sim_debug_pb2.controller_debug):
         debug_proto.acceleration = self.longitudinal_cmd
+
+        
+class LongMPC_Controller:
+    def __init__(self, ts: float, horizon: int):
+        self.ts = ts
+        self.horizon = horizon
+        self.n_state = 3
+        self.n_control = 1
+        self.init_status = vehicle_status(0, 0, 0, 0, 0, 0)
+        # state vector : {s, v, a}
+        # manupulate variable : { jerk }
+        self.Q = np.diag([1.0, 1.0, 1.0])
+        self.QN = np.diag([1.0, 1.0, 1.0])
+
+        self.R = np.diag([1.0])
+
+    def getReferenceLine(self, ref_points: list):
+        self.ref = ref_points
+        return True
+    def Update(self, ego_vehicle: vehicle_model, target_vehicle: object):
+        state0 = np.array([0, ego_vehicle.velocity, ego_vehicle.acceleration])
+        
+        trajectory = self.ref
+        return self.mpc_control(state0, trajectory)
+    def mpc_control(self, state0, trajectory):
+        horizon = self.horizon
+        ts = self.ts
+        max_jerk = 1.0
         
         
 if __name__ == "__main__":

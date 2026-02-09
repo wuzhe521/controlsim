@@ -155,9 +155,9 @@ mid =  (field_size["y_max"] + field_size["y_min"]) / 2
 
 straight_road = reference_line(mid, 0.0, 0.0)
 
-left_curve_road = reference_line(mid, 0.05, 0.01)
+left_curve_road = reference_line(mid, 0.05, 0.001)
 
-right_curve_road = reference_line(mid, -0.05, -0.01)
+right_curve_road = reference_line(mid, -0.05, -0.001)
 
 # do some test
 if __name__ == "__main__":
