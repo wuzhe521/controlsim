@@ -164,7 +164,7 @@ class LatKmMpc_Controller:
         debug_proto.kappa_rate = self.lateral_cmd
 
 class LongPid_Controller:
-    def __init__(self, headway: float, set_speed: int):
+    def __init__(self, headway: float, set_speed: float):
 
         ### follow PID ###
         self.P_pos = 0.5
