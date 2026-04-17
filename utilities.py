@@ -3,10 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 
-field_size  = {"x_min": -10, "x_max": 200, "y_min": -10, "y_max": 100}
+field_size  = {"x_min": -10, "x_max": 500, "y_min": -10, "y_max": 100}
 
 map_radius = [50, 200, 500, 1000, 1500, 5000]
-map_kappa = [1 / i for i in map_radius]
+map_kappa = [1 / max(1e-6, i) for i in map_radius]
 map_velocity = [20, 40, 60, 80, 100, 150]
 
 MAX_Heading_Diff = 0.05

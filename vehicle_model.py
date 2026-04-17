@@ -117,7 +117,47 @@ class vehicle_model:
             alpha=0.7,
         )
         ax.add_patch(rect)
-
+    def plot_vehicle_3d(self, ax, color='b'):
+        """
+        Plots a simple 3D representation of the vehicle.
+        """
+        # Define vehicle dimensions
+        length = self.Length # Assuming these attributes exist
+        width = self.Width
+        
+        # Calculate corners based on ego.X, ego.Y, and ego.heading (theta)
+        # This requires trigonometry to rotate the rectangle by ego.theta
+        cos_t = np.cos(self.angle)
+        sin_t = np.sin(self.angle)
+        
+        # Local corners
+        half_l = length / 2
+        half_w = width / 2
+        
+        # Rotate and translate
+        # Corner 1: Front Left
+        x1 = self.X + (half_l * cos_t - half_w * sin_t)
+        y1 = self.Y + (half_l * sin_t + half_w * cos_t)
+        
+        # Corner 2: Front Right
+        x2 = self.X + (half_l * cos_t + half_w * sin_t)
+        y2 = self.Y + (half_l * sin_t - half_w * cos_t)
+        
+        # Corner 3: Rear Right
+        x3 = self.X + (-half_l * cos_t + half_w * sin_t)
+        y3 = self.Y + (-half_l * sin_t - half_w * cos_t)
+        
+        # Corner 4: Rear Left
+        x4 = self.X + (-half_l * cos_t - half_w * sin_t)
+        y4 = self.Y + (-half_l * sin_t + half_w * cos_t)
+        
+        xs = [x1, x2, x3, x4, x1]
+        ys = [y1, y2, y3, y4, y1]
+        zs = [0, 0, 0, 0, 0] # Ground level
+        
+        ax.plot(xs, ys, zs, zdir='z', color=color, linewidth=2)
+        # Add a vertical line to show "height" or direction
+        ax.plot([self.X, self.X], [self.Y, self.Y], [0, 1], zdir='z', color=color)
     def debug_proto(self, debug_proto: sim_debug_pb2.vehicle_state_debug):
         # debug_proto.name = self.name
         debug_proto.x = self.X
