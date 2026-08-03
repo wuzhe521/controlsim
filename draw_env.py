@@ -23,10 +23,10 @@ recorder = sim_data_recorder("test")
 player = sim_data_player()
 if __name__ == "__main__":
     #########objects creation##### 
-    ref_lin = left_curve_road  # create a reference line
-    ego = vehicle_model("ego", 0.01, 0.002, 15.0, 0, 0, 40)  # create a vehicle model
+    ref_lin = straight_road  # create a reference line
+    ego = vehicle_model("ego", 0.3, 0.002, 80/3.6, 0, 0, 35)  # create a vehicle model
     sensor = detect_sensor(ego)  # equipment sensor in ego vehicle
-    sensor.register_object(object("car", 1.9, 5.0, 20.0, 100.0 / 3.6, ref_lin, 2.0))
+    sensor.register_object(object("car", 1.9, 5.0, 100.0, 90.0 / 3.6, ref_lin, 20.0))
     sensor.register_ref_line(ref_lin)
     trajectory = ref_lin.get_ref_points(field_size["x_max"])  # get reference line
 
@@ -75,7 +75,10 @@ if __name__ == "__main__":
         #### find nearest point ######
         nearest_point = ref_lin.get_nearest_point(ego.X, ego.Y)  # get nearest point
         plt.scatter(nearest_point.x, nearest_point.y, s=5, c="g")  # draw nearest point
-
+        s = nearest_point.s
+        l = np.sqrt((nearest_point.x - ego.X)**2 + (nearest_point.y - ego.Y)**2)
+        heading = ego.angle
+        print(f"target point : s = {s: 0.2f}, l = {l: 0.2f}, heading = {heading: 0.2f}")
         #### get control reference point #####
         ds = [ego.velocity * ts * i for i in range(horizon)]
         control_ref = []
@@ -87,10 +90,7 @@ if __name__ == "__main__":
         #### update controller and get control command #####
         kappa_rate = lat_controller.Update(ego_status, control_ref)
         acceleration = lon_controller.Update(ego, sensor.get_object_by_name("car"))
-        print(
-            "kappa_rate : ", kappa_rate, " acceleration : ", acceleration
-        )  # print control command
-
+        
         #### plot control reference point #####
         control_ref_x = [pt.x for pt in control_ref]
         control_ref_y = [pt.y for pt in control_ref]
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         debugger.controller_debug.append(controller_debug)
         ##### kinematic model update #####
         ego.kinematic_Update(
-            kappa_rate=kappa_rate, acceleration=acceleration, dt=ts
+            kappa_rate=kappa_rate, acceleration=0.0, dt=ts
         )  # update kinematic model
         #### sensor update #####
         sensor.Update(ts)

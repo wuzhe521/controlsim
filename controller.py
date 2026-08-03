@@ -9,7 +9,7 @@ from object import object
 from proto import sim_debug_pb2
 
 ts = 0.2  # sample time
-horizon = 15  # horizon length
+horizon = 10  # horizon length
 
 max_jerk = 0.5
 max_kappa_rate = 0.05
@@ -27,13 +27,13 @@ class LatKmMpc_Controller:
         # weight matrix
         self.Q = sp.csc_array(
             [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
+                [0.1, 0.0, 0.0, 0.0],
+                [0.0, 0.1, 0.0, 0.0],
                 [0.0, 0.0, 10.0, 0.0],
                 [0.0, 0.0, 0.0, 10.0],
             ]
         )
-        self.R = 1000.0
+        self.R = 100.0
         self.QN = self.Q
         # reference
         self.ref = []

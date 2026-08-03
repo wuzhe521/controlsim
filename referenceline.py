@@ -153,7 +153,7 @@ class reference_line:
         )
 mid =  (field_size["y_max"] + field_size["y_min"]) / 2
 
-straight_road = reference_line(mid, 0.0, 0.0)
+straight_road = reference_line(mid, 1e-10, 1e-10)
 
 left_curve_road = reference_line(mid, 0.05, 0.001)
 
